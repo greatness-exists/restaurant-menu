@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef } from "react";
 
 type ReporterProps = {
-  // Props are only passed on the global error page
-  error?: Error & { digest?: string }
-  reset?: () => void
-}
+  /*  ⎯⎯ props are only provided on the global-error page ⎯⎯ */
+  error?: Error & { digest?: string };
+  reset?: () => void;
+};
 
-export default function ErrorReporter({ error, reset }: ReporterProps) {
-  // ─ Shared instrumentation ─
-  const lastOverlayMsg = useRef("")
-  const pollRef = useRef<NodeJS.Timeout | null>(null) // ✅ Fixed (initialized with null)
+export default function ErrorReporter({ error }: ReporterProps) {
+  /* ─ instrumentation shared by every route ─ */
+  const lastOverlayMsg = useRef("");
+  const pollRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const inIframe = window.parent !== window
-    if (!inIframe) return
+    const inIframe = window.parent !== window;
+    if (!inIframe) return;
 
-    const send = (payload: unknown) => window.parent.postMessage(payload, "*")
+    const send = (payload: unknown) => window.parent.postMessage(payload, "*");
 
     const onError = (e: ErrorEvent) =>
       send({
@@ -31,7 +31,7 @@ export default function ErrorReporter({ error, reset }: ReporterProps) {
           source: "window.onerror",
         },
         timestamp: Date.now(),
-      })
+      });
 
     const onReject = (e: PromiseRejectionEvent) =>
       send({
@@ -42,41 +42,41 @@ export default function ErrorReporter({ error, reset }: ReporterProps) {
           source: "unhandledrejection",
         },
         timestamp: Date.now(),
-      })
+      });
 
-    // Poll for Next.js overlay errors in dev mode
     const pollOverlay = () => {
-      const overlay = document.querySelector("[data-nextjs-dialog-overlay]")
+      const overlay = document.querySelector("[data-nextjs-dialog-overlay]");
       const node =
-        overlay?.querySelector("h1, h2, .error-message, [data-nextjs-dialog-body]") ?? null
-      const txt = node?.textContent ?? node?.innerHTML ?? ""
-
+        overlay?.querySelector(
+          "h1, h2, .error-message, [data-nextjs-dialog-body]"
+        ) ?? null;
+      const txt = node?.textContent ?? node?.innerHTML ?? "";
       if (txt && txt !== lastOverlayMsg.current) {
-        lastOverlayMsg.current = txt
+        lastOverlayMsg.current = txt;
         send({
           type: "ERROR_CAPTURED",
           error: { message: txt, source: "nextjs-dev-overlay" },
           timestamp: Date.now(),
-        })
+        });
       }
-    }
+    };
 
-    // Register listeners and start polling
-    window.addEventListener("error", onError)
-    window.addEventListener("unhandledrejection", onReject)
-    pollRef.current = setInterval(pollOverlay, 1000)
+    window.addEventListener("error", onError);
+    window.addEventListener("unhandledrejection", onReject);
+    pollRef.current = setInterval(pollOverlay, 1000);
 
-    // Cleanup on unmount
     return () => {
-      window.removeEventListener("error", onError)
-      window.removeEventListener("unhandledrejection", onReject)
-      if (pollRef.current) clearInterval(pollRef.current)
-    }
-  }, [])
+      window.removeEventListener("error", onError);
+      window.removeEventListener("unhandledrejection", onReject);
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+      }
+    };
+  }, []);
 
-  // ─ Post global error info when on global-error route ─
+  /* ─ extra postMessage when on the global-error route ─ */
   useEffect(() => {
-    if (!error) return
+    if (!error) return;
     window.parent.postMessage(
       {
         type: "global-error-reset",
@@ -90,44 +90,49 @@ export default function ErrorReporter({ error, reset }: ReporterProps) {
         userAgent: navigator.userAgent,
       },
       "*"
-    )
-  }, [error])
+    );
+  }, [error]);
 
-  // ─ Ordinary pages render nothing ─
-  if (!error) return null
+  /* ─ ordinary pages render nothing ─ */
+  if (!error) return null;
 
-  // ─ Global error UI ─
+  /* ─ global-error UI ─ */
   return (
     <html>
       <body className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center space-y-6">
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-destructive">Something went wrong!</h1>
+            <h1 className="text-2xl font-bold text-destructive">
+              Something went wrong!
+            </h1>
             <p className="text-muted-foreground">
-              An unexpected error occurred. Please try again or refresh the page.
+              An unexpected error occurred. Please try again fixing with Orchids
             </p>
           </div>
-
-          {process.env.NODE_ENV === "development" && (
-            <details className="mt-4 text-left">
-              <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
-                Error details
-              </summary>
-              <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto">
-                {error.message}
-                {error.stack && (
-                  <div className="mt-2 text-muted-foreground">{error.stack}</div>
-                )}
-                {error.digest && (
-                  <div className="mt-2 text-muted-foreground">
-                    Digest: {error.digest}
-                  </div>
-                )}
-              </pre>
-            </details>
-          )}
+          <div className="space-y-2">
+            {process.env.NODE_ENV === "development" && (
+              <details className="mt-4 text-left">
+                <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+                  Error details
+                </summary>
+                <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto">
+                  {error.message}
+                  {error.stack && (
+                    <div className="mt-2 text-muted-foreground">
+                      {error.stack}
+                    </div>
+                  )}
+                  {error.digest && (
+                    <div className="mt-2 text-muted-foreground">
+                      Digest: {error.digest}
+                    </div>
+                  )}
+                </pre>
+              </details>
+            )}
+          </div>
         </div>
       </body>
     </html>
-  )
+  );
 }

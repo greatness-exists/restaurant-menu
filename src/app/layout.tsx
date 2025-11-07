@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import VisualEditsMessenger from "@/visual-edits/VisualEditsMessenger";
+import VisualEditsMessenger from "../visual-edits/VisualEditsMessenger";
 import ErrorReporter from "@/components/ErrorReporter";
 import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "Ko-Sa Beach Resort Restaurant - Menu",
-  description: "Explore our delicious menu featuring Thai and international cuisine",
+  title: "KO-SA Restaurant - Fine Dining Experience",
+  description:
+    "Experience culinary excellence with our carefully crafted menu featuring fresh, locally-sourced ingredients",
+  icons: {
+    icon: "/logo.png",   // ← your logo will appear as the favicon
+    apple: "/logo.png",  // ← same logo for Apple Touch icon
+  },
 };
 
 export default function RootLayout({

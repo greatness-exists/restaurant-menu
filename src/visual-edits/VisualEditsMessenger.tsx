@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 export const CHANNEL = "ORCHIDS_HOVER_v1" as const;
 const VISUAL_EDIT_MODE_KEY = "orchids_visual_edit_mode" as const;
@@ -462,6 +462,35 @@ export default function HoverReceiver() {
 
   // On mount, notify parent if visual edit mode was restored from localStorage
   useEffect(() => {
+    const restoreFocusedElement = () => {
+      if (typeof window !== "undefined") {
+        // Restore focused element
+        const focusedData = localStorage.getItem(FOCUSED_ELEMENT_KEY);
+        if (focusedData) {
+          try {
+            const { id } = JSON.parse(focusedData);
+            const element = document.querySelector(
+              `[data-orchids-id="${id}"]`
+            ) as HTMLElement;
+
+            if (element) {
+              // Simulate a click on the element to restore focus
+              const rect = element.getBoundingClientRect();
+              const clickEvent = new MouseEvent("click", {
+                clientX: rect.left + rect.width / 2,
+                clientY: rect.top + rect.height / 2,
+                bubbles: true,
+                cancelable: true,
+              });
+              element.dispatchEvent(clickEvent);
+            }
+          } catch {
+            // Ignore parsing errors
+          }
+        }
+      }
+    };
+
     if (isVisualEditMode) {
       // Send acknowledgement to parent that visual edit mode is active
       // This will sync the parent's state with our restored state
@@ -477,34 +506,7 @@ export default function HoverReceiver() {
       );
 
       // Restore focused element after a short delay to ensure DOM is ready
-      setTimeout(() => {
-        if (typeof window !== "undefined") {
-          // Restore focused element
-          const focusedData = localStorage.getItem(FOCUSED_ELEMENT_KEY);
-          if (focusedData) {
-            try {
-              const { id } = JSON.parse(focusedData);
-              const element = document.querySelector(
-                `[data-orchids-id="${id}"]`
-              ) as HTMLElement;
-
-              if (element) {
-                // Simulate a click on the element to restore focus
-                const rect = element.getBoundingClientRect();
-                const clickEvent = new MouseEvent("click", {
-                  clientX: rect.left + rect.width / 2,
-                  clientY: rect.top + rect.height / 2,
-                  bubbles: true,
-                  cancelable: true,
-                });
-                element.dispatchEvent(clickEvent);
-              }
-            } catch {
-              // Ignore parsing errors
-            }
-          }
-        }
-      }, 500); // Wait 500ms for DOM to be fully ready
+      setTimeout(restoreFocusedElement, 500); // Wait 500ms for DOM to be fully ready
     }
   }, []); // Run only on mount
 
@@ -517,12 +519,12 @@ export default function HoverReceiver() {
   });
 
   // Helper to update focus box position
-  const updateFocusBox = () => {
+  const updateFocusBox = useCallback(() => {
     if (focusedElementRef.current) {
       const r = focusedElementRef.current.getBoundingClientRect();
       setFocusBox(expandBox(r));
     }
-  };
+  }, []);
 
   // Add global styles for contentEditable elements
   useEffect(() => {
@@ -609,7 +611,7 @@ export default function HoverReceiver() {
   };
 
   // Handle text changes and send to parent
-  const handleTextChange = (element: HTMLElement) => {
+  const handleTextChange = useCallback((element: HTMLElement) => {
     // Double-check this is still the editing element to avoid stale closures
     if (element !== editingElementRef.current) {
       console.warn("Attempting to handle text change for non-editing element");
@@ -657,10 +659,10 @@ export default function HoverReceiver() {
       // Update the original content reference
       originalContentRef.current = newText;
     }
-  };
+  }, []);
 
   // Handle style changes and send to parent
-  const handleStyleChange = (
+  const handleStyleChange = useCallback((
     element: HTMLElement,
     styles: Record<string, string>
   ) => {
@@ -727,10 +729,10 @@ export default function HoverReceiver() {
     });
 
     // Don't send to parent yet - wait for blur
-  };
+  }, [updateFocusBox]);
 
   // Send style changes on blur
-  const handleStyleBlur = (element: HTMLElement) => {
+  const handleStyleBlur = useCallback((element: HTMLElement) => {
     if (!hasStyleChangesRef.current) return;
 
     const orchidsId = element.getAttribute("data-orchids-id");
@@ -761,10 +763,10 @@ export default function HoverReceiver() {
 
     // Reset style changes flag
     hasStyleChangesRef.current = false;
-  };
+  }, []);
 
   // Flush image src updates on blur/focus change
-  const flushImageSrcChange = () => {
+  const flushImageSrcChange = useCallback(() => {
     // Use the stored image element reference if available
     const imgElement = focusedImageElementRef.current;
     if (!imgElement) return;
@@ -795,7 +797,7 @@ export default function HoverReceiver() {
 
     originalSrcRef.current = newSrc; // reset baseline
     focusedImageElementRef.current = null; // clear reference
-  };
+  }, []);
 
   // Listen for style and image updates from parent
   useEffect(() => {
@@ -1024,11 +1026,11 @@ export default function HoverReceiver() {
           parentRect.height - parentPaddingTop - parentPaddingBottom;
 
         /*
-         * Soft-clamp strategy: we respect the parent’s max size until the
-         * user’s cursor actually travels beyond that limit.  As soon as the
+         * Soft-clamp strategy: we respect the parent's max size until the
+         * user's cursor actually travels beyond that limit.  As soon as the
          * drag distance would produce a dimension larger than the container
          * can accommodate we stop clamping and let the element follow the
-         * cursor, effectively allowing it to “spill” out of its parent.
+         * cursor, effectively allowing it to "spill" out of its parent.
          */
         const exceedsWidth = newWidth > maxWidth;
         const exceedsHeight = newHeight > maxHeight;
@@ -1191,7 +1193,7 @@ export default function HoverReceiver() {
   }, [isResizing, resizeStart, resizeHandle, focusedElementId, hoverBox]); // Added focusedElementId and hoverBox as dependencies
 
   // Cleanup function to restore element state
-  const cleanupEditingElement = () => {
+  const cleanupEditingElement = useCallback(() => {
     if (editingElementRef.current) {
       const element = editingElementRef.current;
 
@@ -1245,7 +1247,7 @@ export default function HoverReceiver() {
       // Clear the original content reference
       originalContentRef.current = "";
     }
-  };
+  }, [handleStyleBlur, handleTextChange]);
 
   // Prevent all navigation in visual edit mode
   useEffect(() => {
@@ -1288,7 +1290,7 @@ export default function HoverReceiver() {
       // Clear image element reference
       focusedImageElementRef.current = null;
     }
-  }, [isVisualEditMode]);
+  }, [isVisualEditMode, cleanupEditingElement]);
 
   // Update focus box position when scrolling or resizing
   useEffect(() => {
@@ -1329,7 +1331,7 @@ export default function HoverReceiver() {
         resizeObserver.disconnect();
       };
     }
-  }, [focusedElementId]);
+  }, [focusedElementId, updateFocusBox]);
 
   useEffect(() => {
     // Handle pointer movement directly in the iframe
@@ -2005,7 +2007,7 @@ export default function HoverReceiver() {
       window.removeEventListener("scroll", onScroll, true);
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
     };
-  }, [focusedElementId, isResizing]); // Added focusedElementId and isResizing as dependencies
+  }, [focusedElementId, isScrolling, cleanupEditingElement, handleStyleChange, updateFocusBox, handleStyleBlur, flushImageSrcChange, handleTextChange]);
 
   return (
     <>
