@@ -6,11 +6,10 @@ import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "KO-SA Restaurant - Fine Dining Experience",
-  description:
-    "Experience culinary excellence with our carefully crafted menu featuring fresh, locally-sourced ingredients",
+  description: "Experience culinary excellence with our carefully crafted menu featuring fresh, locally-sourced ingredients",
   icons: {
-    icon: "/logo.png",   // ← your logo will appear as the favicon
-    apple: "/logo.png",  // ← same logo for Apple Touch icon
+    icon: "/logo.png",   // ← favicon
+    apple: "/logo.png",  // ← Apple touch icon
   },
 };
 

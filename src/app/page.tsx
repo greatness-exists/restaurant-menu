@@ -12,13 +12,14 @@ export default function Home() {
       {/* Hero Section */}
       <div className="relative h-[400px] md:h-[500px] overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: "url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/772A2416-1762556532915.JPG?width=8000&height=8000&resize=contain')",
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background"></div>
-        </div>
+  className="absolute inset-0 bg-cover bg-center"
+  style={{
+    backgroundImage: "url('/restaurant.JPG')",
+  }}
+>
+  <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background"></div>
+</div>
+
         
         <div className="relative h-full flex flex-col items-center justify-center text-center px-4 z-10">
           <div className="flex items-center gap-3 mb-4 animate-fade-in">
