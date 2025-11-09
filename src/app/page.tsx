@@ -10,36 +10,38 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/20">
       {/* Hero Section */}
-      <div className="relative h-[400px] md:h-[500px] overflow-hidden">
-        <div 
-  className="absolute inset-0 bg-cover bg-center"
-  style={{
-    backgroundImage: "url('/restaurant.JPG')",
-  }}
->
-  <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background"></div>
+      <div className="relative h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden">
+  <div
+    className="absolute inset-0 bg-cover bg-center md:bg-top"
+    style={{
+      backgroundImage: "url('/KO-SABreezeRestaurant.jpg')",
+      backgroundSize: "cover",
+      backgroundRepeat: "no-repeat",
+      backgroundPosition: "center",
+    }}
+  >
+    {/* Optional: Add a slight dark gradient overlay for text readability */}
+    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background"></div>
+  </div>
+
+  <div className="relative h-full flex flex-col items-center justify-center text-center px-4 z-10">
+    <div className="flex items-center gap-3 mb-4 animate-fade-in">
+      <Waves className="w-8 h-8 text-accent" />
+      <UtensilsCrossed className="w-10 h-10 text-white" />
+      <Waves className="w-8 h-8 text-accent" />
+    </div>
+    <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-4 animate-fade-in-up">
+      Ko-Sa Breeze Restaurant
+    </h1>
+    <p className="text-base sm:text-xl md:text-2xl text-white/90 mb-2 font-light animate-fade-in-up animation-delay-200">
+      Restaurant & Bar
+    </p>
+    <p className="text-sm sm:text-lg text-accent/90 animate-fade-in-up animation-delay-300">
+      Fresh • Coastal • Authentic
+    </p>
+  </div>
 </div>
 
-        
-        <div className="relative h-full flex flex-col items-center justify-center text-center px-4 z-10">
-          <div className="flex items-center gap-3 mb-4 animate-fade-in">
-            <Waves className="w-8 h-8 text-accent" />
-            <UtensilsCrossed className="w-10 h-10 text-white" />
-            <Waves className="w-8 h-8 text-accent" />
-          </div>
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-4 animate-fade-in-up">
-            Ko-Sa Beach Resort
-          </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-2 font-light animate-fade-in-up animation-delay-200">
-            Restaurant & Bar
-          </p>
-          <p className="text-base sm:text-lg text-accent/90 animate-fade-in-up animation-delay-300">
-            Fresh • Coastal • Authentic
-          </p>
-        </div>
-
-        <div className="absolute bottom-0 left-0 right-0 h-16 wave-pattern"></div>
-      </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">

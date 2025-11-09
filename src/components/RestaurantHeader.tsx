@@ -8,7 +8,7 @@ export const RestaurantHeader = () => {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <Utensils className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">Orchid Restaurant</h1>
+          <h1 className="text-2xl font-bold text-foreground">KO-SA Restaurant</h1>
         </div>
         <nav className="hidden md:flex items-center gap-6">
           <a href="#appetizers" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
