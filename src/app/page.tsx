@@ -30,15 +30,7 @@ export default function Home() {
       <UtensilsCrossed className="w-10 h-10 text-white" />
       <Waves className="w-8 h-8 text-accent" />
     </div>
-    <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-4 animate-fade-in-up">
-      Ko-Sa Breeze Restaurant
-    </h1>
-    <p className="text-base sm:text-xl md:text-2xl text-white/90 mb-2 font-light animate-fade-in-up animation-delay-200">
-      Restaurant & Bar
-    </p>
-    <p className="text-base sm:text-lg text-white animate-fade-in-up animation-delay-300">
-            Fresh • Coastal • Authentic
-          </p>
+   
   </div>
 </div>
 
